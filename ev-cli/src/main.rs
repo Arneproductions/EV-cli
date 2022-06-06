@@ -1,24 +1,8 @@
 use clap::Parser;
 
-/// An easy way to edit environment variables
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-struct Args {
+use crate::cmd::Args;
 
-    /// Use the user specific variables
-    #[clap(short)]
-    user_variables: bool,
-
-    #[clap(subcommand)]
-    action: Action
-}
-
-#[derive(clap::Subcommand, Debug)]
-enum Action {
-    Add,
-    Remove,
-    List
-}
+mod cmd;
 
 fn main() {
     let args = Args::parse();
