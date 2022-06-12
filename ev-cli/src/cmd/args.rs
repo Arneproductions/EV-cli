@@ -6,8 +6,8 @@ use clap::Parser;
 pub struct Args {
 
     /// Use the user specific variables
-    #[clap(short)]
-    pub user_variables: bool,
+    #[clap(short, parse(from_flag))]
+    pub global: bool,
 
     #[clap(subcommand)]
     pub action: Action
@@ -16,19 +16,19 @@ pub struct Args {
 #[derive(clap::Subcommand, Debug)]
 pub enum Action {
     Add {
-        #[clap(short)]
+        #[clap(short = 'n')]
         var_name: String,
         
-        #[clap(short)]
+        #[clap(short = 'v')]
         value: String,
         
         /// If this flag is set then it will overwrite the previous values, if not then it will append it.
-        #[clap(short)]
+        #[clap(short, parse(from_flag))]
         overwrite: bool,
     },
     Remove {
         /// Which variable name we should remove. If the variable name does not match specifically then it will not be removed
-        #[clap(short)]
+        #[clap(short = 'n')]
         var_name: String
     },
     List {
