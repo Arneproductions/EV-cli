@@ -1,7 +1,3 @@
-pub trait TerminalHandler: AddCommand + RemoveCommand + ListCommand {
-
-}
-
 pub trait AddCommand {
     fn add_variable(&self, var_name: String, value: String) -> ();
 }
