@@ -3,8 +3,8 @@ pub trait AddCommand {
 }
 
 pub trait ListCommand {
-    fn list_variables(&self) -> [String];
-    fn list_terminals(&self) -> [String];
+    fn list_variables(&self) -> Vec<String>;
+    fn list_terminals(&self) -> Vec<String>;
 }
 
 pub trait RemoveCommand {
