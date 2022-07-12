@@ -1,27 +1,32 @@
-use std::{fs};
+use std::{fs, arch::global_asm};
 
 use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
 
 use super::TerminalHandler;
 
-const USER_PATH: String = String::from("/sdf");
-const GLOBAL_PATH: String = String::from("bla bla");
+const USER_PATH: &str = "~/.zshrc";
+const GLOBAL_PATH: &str = "/etc/zprofile";
 
 pub struct ZSHHandler {
 
+    use_global: bool,
     user_path: String,
     global_path: String,
 }
 
 impl ZSHHandler {
-    pub fn new() -> Self {
+    pub fn new(use_global: bool) -> Self {
         Self { 
-            user_path: USER_PATH, 
-            global_path: GLOBAL_PATH 
+            use_global: use_global,
+            user_path: String::from(USER_PATH), 
+            global_path: String::from(GLOBAL_PATH) 
         }
     }
 
-    fn read_file(&self, path: &String) -> String {
+    fn read_file(&self) -> String {
+
+        let path = if self.use_global { self.global_path } else { self.user_path };
+
         let content = fs::read_to_string(path)
             .expect("Could not read the environment configuration file!");
 
@@ -32,7 +37,7 @@ impl ZSHHandler {
 impl RemoveCommand for ZSHHandler {
     fn remove_variable(&self, var_name: String) -> () {
 
-        let content = self.read_file(&self.user_path);
+        let content = self.read_file();
         return;
     }
 }
@@ -40,7 +45,7 @@ impl RemoveCommand for ZSHHandler {
 impl AddCommand for ZSHHandler {
     fn add_variable(&self, var_name: String, value: String) -> () {
         
-        let content = self.read_file(&self.user_path);
+        let content = self.read_file();
 
         return;
     }
@@ -49,14 +54,14 @@ impl AddCommand for ZSHHandler {
 impl ListCommand for ZSHHandler {
     fn list_variables(&self) -> Vec<String> {
 
-        let content = self.read_file(&self.user_path);
+        let content = self.read_file();
         
         return Vec::new();
     }
 
     fn list_terminals(&self) -> Vec<String> {
 
-        let content = self.read_file(&self.user_path);
+        let content = self.read_file();
 
         return Vec::new();
     }
