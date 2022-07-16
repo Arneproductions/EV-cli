@@ -4,5 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		// "rust-analyzer.linkedProjects": [
+		// 	"ev-cli/Cargo.toml"
+		// ]
+	}
 }
