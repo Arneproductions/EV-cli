@@ -27,7 +27,7 @@ fn main() {
             display_list("These are the terminals found:".to_string(), terminal_names);
         },
         cmd::Action::List { filter } => {
-            let evs = handler.list_variables(); // TODO: Use filter variable
+            let evs = handler.list_variables(filter);
 
             display_list("Environment Variables:".to_string(), evs); // TODO: Figure out the differences between str and String, and then potentially remove the .to_string()
         },

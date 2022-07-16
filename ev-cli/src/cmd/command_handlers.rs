@@ -3,7 +3,7 @@ pub trait AddCommand {
 }
 
 pub trait ListCommand {
-    fn list_variables(&self) -> Vec<String>;
+    fn list_variables(&self, filter: String) -> Vec<String>;
     fn list_terminals(&self) -> Vec<String>;
 }
 

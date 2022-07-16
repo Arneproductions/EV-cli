@@ -52,7 +52,7 @@ impl AddCommand for ZSHHandler {
 }
 
 impl ListCommand for ZSHHandler {
-    fn list_variables(&self) -> Vec<String> {
+    fn list_variables(&self, filter: String) -> Vec<String> {
 
         let content = self.read_file();
         
