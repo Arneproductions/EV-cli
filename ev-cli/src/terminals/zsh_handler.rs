@@ -1,4 +1,4 @@
-use std::{fs, arch::global_asm};
+use std::{fs};
 
 use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
 
@@ -25,7 +25,7 @@ impl ZSHHandler {
 
     fn read_file(&self) -> String {
 
-        let path = if self.use_global { self.global_path } else { self.user_path };
+        let path = if self.use_global { self.global_path.to_string() } else { self.user_path.to_string() };
 
         let content = fs::read_to_string(path)
             .expect("Could not read the environment configuration file!");
