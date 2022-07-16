@@ -1,5 +1,5 @@
 pub trait AddCommand {
-    fn add_variable(&self, var_name: String, value: String) -> ();
+    fn add_variable(&self, var_name: String, value: String, overwrite: bool) -> ();
 }
 
 pub trait ListCommand {

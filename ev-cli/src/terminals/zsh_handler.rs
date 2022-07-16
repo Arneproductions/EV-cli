@@ -43,7 +43,7 @@ impl RemoveCommand for ZSHHandler {
 }
 
 impl AddCommand for ZSHHandler {
-    fn add_variable(&self, var_name: String, value: String) -> () {
+    fn add_variable(&self, var_name: String, value: String, overwrite: bool) -> () {
         
         let content = self.read_file();
 

@@ -17,7 +17,7 @@ fn main() {
             let name = &var_name;
             let val = &value;
 
-            handler.add_variable(name.to_string(), val.to_string());
+            handler.add_variable(name.to_string(), val.to_string(), overwrite);
 
             println!("Variable {} with value {} added", name, val); 
         },
