@@ -22,7 +22,7 @@ impl ZSHHandler {
             global_path: String::from(GLOBAL_PATH) 
         }
     }
-
+    
     fn read_file(&self) -> String {
 
         let path = if self.use_global { self.global_path.to_string() } else { self.user_path.to_string() };
