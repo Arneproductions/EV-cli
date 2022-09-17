@@ -1,7 +1,6 @@
-use std::{fs};
-
+use std::{fs, collections::HashMap};
+use regex::Regex;
 use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
-
 use super::TerminalHandler;
 
 const USER_PATH: &str = "~/.zshrc";
@@ -32,12 +31,39 @@ impl ZSHHandler {
 
         return content;
     }
+
+    fn parse_environment_variables(&self, content: String) -> HashMap<String, String> {
+
+        /* What we are going to do is that we go through them line by line. For each line we do the following:
+        - Try to see if the string matches the regex for a EV
+            - If it does then we try and split the string with ':' 
+                - Add it/them to the hashmap. If it already exists then overwrite the value
+            - If not we add it as an unknown line that cannot be seen or manipulated with the interface provided
+        */
+        // Create regex
+        // export (?'name'\w+)=\"?((?'value'(.+):?))(\"?)
+        // Parse file with regeg
+        
+        // Add them in a hashmap
+
+        return HashMap::new();
+    }
+    fn save_environment_variables(&self, variables: HashMap<String, String>) {
+        // Build string of variables
+        // Write to file
+    }
 }
 
 impl RemoveCommand for ZSHHandler {
     fn remove_variable(&self, var_name: String) -> () {
 
         let content = self.read_file();
+        let mut variables = self.parse_environment_variables(content);
+        
+        // Remove the environment variable
+        variables.remove(&var_name);
+        
+        self.save_environment_variables(variables);
         return;
     }
 }
