@@ -72,6 +72,15 @@ impl AddCommand for ZSHHandler {
     fn add_variable(&self, var_name: String, value: String, overwrite: bool) -> () {
         
         let content = self.read_file();
+        let mut variables = self.parse_environment_variables(content);
+
+        // If we are not allowed to overwrite a variable and it exists then terminate
+        if(!overwrite && variables.contains_key(&var_name)) {
+            return;
+        }
+
+        variables.insert(var_name, value);
+        self.save_environment_variables(variables);
 
         return;
     }
