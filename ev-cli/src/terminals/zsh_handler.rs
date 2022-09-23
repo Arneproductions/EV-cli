@@ -96,9 +96,8 @@ impl ListCommand for ZSHHandler {
 
     fn list_terminals(&self) -> Vec<String> {
 
-        let content = self.read_file();
-
-        return Vec::new();
+        let terminals = super::get_terminals();
+        return terminals;
     }
 }
 
