@@ -1,4 +1,4 @@
-use std::{fs, collections::HashMap};
+use std::{fs, collections::HashMap, format, borrow::Borrow};
 use regex::Regex;
 use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
 use super::TerminalHandler;
@@ -21,10 +21,16 @@ impl ZSHHandler {
             global_path: String::from(GLOBAL_PATH) 
         }
     }
+
+    fn get_file_path(&self) -> String {
+
+        let path = if self.use_global { self.global_path.to_string() } else { self.user_path.to_string() };
+        return path;
+    }
     
     fn read_file(&self) -> String {
 
-        let path = if self.use_global { self.global_path.to_string() } else { self.user_path.to_string() };
+        let path = self.get_file_path();
 
         let content = fs::read_to_string(path)
             .expect("Could not read the environment configuration file!");
@@ -34,23 +40,38 @@ impl ZSHHandler {
 
     fn parse_environment_variables(&self, content: String) -> HashMap<String, String> {
 
-        /* What we are going to do is that we go through them line by line. For each line we do the following:
-        - Try to see if the string matches the regex for a EV
-            - If it does then we try and split the string with ':' 
-                - Add it/them to the hashmap. If it already exists then overwrite the value
-            - If not we add it as an unknown line that cannot be seen or manipulated with the interface provided
-        */
-        // Create regex
-        // export (?'name'\w+)=\"?((?'value'(.+):?))(\"?)
-        // Parse file with regeg
-        
-        // Add them in a hashmap
+        let env_var_regex = Regex::new("^export (?'name'\\w+)=(?'value'[a-z,A-Z,<>-_`¨^~'.,:;\\/]+)$").unwrap();
+        let mut environment_variables = HashMap::new();
 
-        return HashMap::new();
+        for line in content.split("\n") {
+
+            if env_var_regex.is_match(line) {
+
+               let captures = env_var_regex.captures(line).unwrap();
+               
+               let name = captures.name("Name").expect("Environment variable is missing a name");
+               let value = captures.name("Value").expect("Environment variable is missing a value");
+
+               environment_variables.insert(name.as_str().to_owned(), value.as_str().to_owned());
+            } 
+        }
+
+        return environment_variables;
     }
+
     fn save_environment_variables(&self, variables: HashMap<String, String>) {
         // Build string of variables
-        // Write to file
+
+        let mut sb: String = "".to_owned();
+
+        for (name, value) in variables {
+           
+            sb.push_str(format!("export {}={}\n", name, value).borrow());
+        }
+
+        // Write the changes to the file
+        let path = self.get_file_path();
+        fs::write(path, sb).expect("Could save state to file...");
     }
 }
 
@@ -75,7 +96,7 @@ impl AddCommand for ZSHHandler {
         let mut variables = self.parse_environment_variables(content);
 
         // If we are not allowed to overwrite a variable and it exists then terminate
-        if(!overwrite && variables.contains_key(&var_name)) {
+        if !overwrite && variables.contains_key(&var_name) {
             return;
         }
 
