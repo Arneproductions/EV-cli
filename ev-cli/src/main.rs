@@ -41,11 +41,11 @@ fn main() {
 }
 
 fn display_list(message: String, list: Vec<String>) {
-    if(message.len() > 0) {
+    if message.len() > 0 {
         println!("{}", message);
 
         // Create seperator line
-        for x in 1..message.len() {
+        for _ in 1..message.len() {
             print!("-");
         }
 
