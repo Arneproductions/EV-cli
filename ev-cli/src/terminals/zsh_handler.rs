@@ -111,8 +111,16 @@ impl ListCommand for ZSHHandler {
     fn list_variables(&self, filter: String) -> Vec<String> {
 
         let content = self.read_file();
+        let variables = self.parse_environment_variables(content);
+
+        let mut names = Vec::new();
+        for (name, _) in variables {
+            
+            // TODO: Add possibility to filter the names in the list
+            names.push(name);
+        }
         
-        return Vec::new();
+        return names;
     }
 
     fn list_terminals(&self) -> Vec<String> {
