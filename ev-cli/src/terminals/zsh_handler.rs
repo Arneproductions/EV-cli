@@ -116,8 +116,10 @@ impl ListCommand for ZSHHandler {
         let mut names = Vec::new();
         for (name, _) in variables {
             
-            // TODO: Add possibility to filter the names in the list
-            names.push(name);
+            if name.contains(&filter) {
+
+                names.push(name);
+            }
         }
         
         return names;
