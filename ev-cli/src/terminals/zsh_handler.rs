@@ -43,7 +43,7 @@ impl ZSHHandler {
 
         let env_var_regex = Regex::new("^export (?'name'\\w+)=(?'value'[a-z,A-Z,<>-_`¨^~'.,:;\\/]+)$").unwrap();
         let mut environment_variables = HashMap::new();
-        let script_lines: String = String::new();
+        let mut script_lines: String = String::new();
 
         for line in content.split("\n") {
 
@@ -56,9 +56,12 @@ impl ZSHHandler {
 
                environment_variables.insert(name.as_str().to_owned(), value.as_str().to_owned());
             } else {
-
+                script_lines.push_str(line);
             } 
         }
+
+        // Make sure to include strings that is not export VAR=VALUE. This could be scripts
+        environment_variables.insert(ENV_SCRIPT_TAG.to_string(), script_lines);
 
         return environment_variables;
     }
@@ -99,6 +102,10 @@ impl AddCommand for ZSHHandler {
         let content = self.read_file();
         let mut variables = self.parse_environment_variables(content);
 
+        if ENV_SCRIPT_TAG == var_name {
+            return; // DO NOT EVEN... you bastard
+        }
+
         // If we are not allowed to overwrite a variable and it exists then terminate
         if !overwrite && variables.contains_key(var_name) {
             return;
@@ -120,7 +127,7 @@ impl ListCommand for ZSHHandler {
         let mut names = Vec::new();
         for (name, _) in variables {
             
-            if name.contains(&filter) {
+            if name.contains(&filter) && ENV_SCRIPT_TAG != name {
 
                 names.push(name);
             }
