@@ -46,7 +46,7 @@ impl ZSHHandler {
         let mut script_lines: String = String::new();
 
         for line in content.split("\n") {
-
+        
             if env_var_regex.is_match(line) {
 
                let captures = env_var_regex.captures(line).unwrap();
