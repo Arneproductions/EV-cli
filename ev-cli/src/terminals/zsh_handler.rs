@@ -1,7 +1,7 @@
-use std::{fs, collections::HashMap, format, borrow::Borrow};
+use std::{fs, collections::HashMap};
 use regex::Regex;
 use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
-use super::TerminalHandler;
+use super::{TerminalHandler, EnvironmentVariableBlock};
 
 const USER_PATH: &str = "~/.zshrc";
 const GLOBAL_PATH: &str = "/etc/zprofile";
@@ -39,11 +39,12 @@ impl ZSHHandler {
         return content;
     }
 
-    fn parse_environment_variables(&self, content: String) -> HashMap<String, String> {
+    fn parse_environment_variables(&self, content: String) -> HashMap<String, EnvironmentVariableBlock> {
 
         let env_var_regex = Regex::new("^export (?'name'\\w+)=(?'value'[a-z,A-Z,<>-_`¨^~'.,:;\\/]+)$").unwrap();
         let mut environment_variables = HashMap::new();
-        let mut script_lines: String = String::new();
+
+        let mut ev_block = EnvironmentVariableBlock::new();
 
         for line in content.split("\n") {
         
@@ -53,27 +54,29 @@ impl ZSHHandler {
                
                let name = captures.name("Name").expect("Environment variable is missing a name");
                let value = captures.name("Value").expect("Environment variable is missing a value");
+               ev_block.set_environment_variable(name.as_str(), value.as_str());
 
-               environment_variables.insert(name.as_str().to_owned(), value.as_str().to_owned());
+               environment_variables.insert(name.as_str().to_owned(), ev_block);
+               ev_block = EnvironmentVariableBlock::new();
             } else {
-                script_lines.push_str(line);
+                ev_block.add_misc(line);
             } 
         }
 
         // Make sure to include strings that is not export VAR=VALUE. This could be scripts
-        environment_variables.insert(ENV_SCRIPT_TAG.to_string(), script_lines);
+        environment_variables.insert(ENV_SCRIPT_TAG.to_string(), ev_block);
 
         return environment_variables;
     }
 
-    fn save_environment_variables(&self, variables: HashMap<String, String>) {
+    fn save_environment_variables(&self, variables: HashMap<String, EnvironmentVariableBlock>) {
         // Build string of variables
 
         let mut sb: String = "".to_owned();
 
-        for (name, value) in variables {
+        for (_, value) in variables {
            
-            sb.push_str(format!("export {}={}\n", name, value).borrow());
+            sb.push_str(&value.to_string());
         }
 
         // Write the changes to the file
@@ -111,7 +114,10 @@ impl AddCommand for ZSHHandler {
             return;
         }
 
-        variables.insert(var_name.to_string(), value.to_string());
+        let mut ev_block = EnvironmentVariableBlock::new();
+        ev_block.set_environment_variable(var_name, value);
+
+        variables.insert(var_name.to_string(), ev_block);
         self.save_environment_variables(variables);
 
         return;
