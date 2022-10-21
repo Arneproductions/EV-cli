@@ -4,20 +4,17 @@ mod cmd;
 mod terminals;
 
 fn main() {
-    let args = cmd::Args::parse(); // TODO: Use args in some kind of way
+    let args = cmd::Args::parse(); 
 
-    // TODO: The "".toString() is too ugly. Learn a better way... if any
     let handler = terminals::create_terminal(args.global);
     
     match args.action {
         cmd::Action::Add{var_name, value, overwrite} => {
 
-            // TODO: This shit is so bad... figure it out now
+            let name = var_name;
+            let val = value;
 
-            let name = &var_name;
-            let val = &value;
-
-            handler.add_variable(name.to_string(), val.to_string(), overwrite);
+            handler.add_variable(&name, &val, &overwrite);
 
             println!("Variable {} with value {} added", name, val); 
         },
@@ -27,14 +24,14 @@ fn main() {
             display_list("These are the terminals found:".to_string(), terminal_names);
         },
         cmd::Action::List { filter } => {
-            let evs = handler.list_variables(filter);
+            let evs = handler.list_variables(&filter);
 
             display_list("Environment Variables:".to_string(), evs); // TODO: Figure out the differences between str and String, and then potentially remove the .to_string()
         },
         cmd::Action::Remove { var_name } => {
             let name = &var_name;
 
-            handler.remove_variable(name.to_string());
+            handler.remove_variable(&name);
             println!("Variable {} has been removed", name);
         }
     }
