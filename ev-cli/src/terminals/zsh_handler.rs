@@ -145,7 +145,7 @@ impl ListCommand for ZSHHandler {
     fn list_terminals(&self) -> Vec<String> {
 
         let terminals = super::get_terminals();
-        return terminals;
+        return Vec::from_iter(terminals);
     }
 }
 

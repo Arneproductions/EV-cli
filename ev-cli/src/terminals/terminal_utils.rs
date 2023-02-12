@@ -15,7 +15,7 @@ fn search_terminals(path: &Path) -> HashSet<String> {
     let mut terminals = HashSet::new();
     let terminal_names = ["zsh", "bash"];
     let dir = fs::read_dir(path).unwrap();
-    
+
     for file_path in dir {
         
         let p = file_path.unwrap();
