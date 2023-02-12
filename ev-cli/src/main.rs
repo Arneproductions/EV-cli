@@ -21,7 +21,7 @@ fn main() {
         cmd::Action::ListEVTerminals => {
             let terminal_names: Vec<String> = handler.list_terminals();
             
-            display_list("These are the terminals found:".to_string(), terminal_names);
+            display_list("Available terminals:".to_string(), terminal_names);
         },
         cmd::Action::List { filter } => {
             let evs = handler.list_variables(&filter);
@@ -46,9 +46,8 @@ fn display_list(message: String, list: Vec<String>) {
             print!("-");
         }
 
-        // Go to new line and then create space to the list
+        // Go to new line
         println!();
-        println!()
     }
 
     for item in list {
