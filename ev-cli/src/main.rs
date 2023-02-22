@@ -2,6 +2,7 @@ use clap::Parser;
 
 mod cmd;
 mod terminals;
+mod io;
 
 fn main() {
     let args = cmd::Args::parse(); 
