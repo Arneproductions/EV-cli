@@ -1,10 +1,10 @@
 use std::{fs, path::Path, collections::HashSet};
-use home;
+use crate::io;
 
 /// Searches for terminal configurations and lists the available terminals
 pub fn get_terminals() -> HashSet<String> {
 
-    match home::home_dir() {
+    match io::get_home_dir() {
         Some(path) => return search_terminals(path.as_path()), 
         None => return HashSet::new()    
     }
