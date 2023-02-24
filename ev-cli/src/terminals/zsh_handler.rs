@@ -1,9 +1,9 @@
-use std::{fs, collections::HashMap};
+use std::{fs, collections::HashMap, path::{PathBuf}};
 use regex::Regex;
-use crate::cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand};
+use crate::{cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand}, io};
 use super::{TerminalHandler, EnvironmentVariableBlock};
 
-const USER_PATH: &str = "~/.zshrc";
+const USER_PATH: &str = ".zshrc";
 const GLOBAL_PATH: &str = "/etc/zprofile";
 const ENV_SCRIPT_TAG: &str = "EVC_SCRIPT_LINES";
 
@@ -23,9 +23,21 @@ impl ZSHHandler {
         }
     }
 
-    fn get_file_path(&self) -> String {
+    fn get_file_path(&self) -> PathBuf {
 
-        let path = if self.use_global { self.global_path.to_string() } else { self.user_path.to_string() };
+        fn build_path(mut home_path: PathBuf, filename: &str) -> PathBuf {
+            home_path.push(filename);
+
+            return home_path;
+        }
+
+        let path = if self.use_global { build_path(PathBuf::new(), self.global_path.as_str()) } else { 
+            match io::get_home_dir() {
+                Some(home_path) => build_path(home_path, self.user_path.as_str()),
+                None => PathBuf::new()
+            }
+        };
+
         return path;
     }
     
@@ -41,7 +53,8 @@ impl ZSHHandler {
 
     fn parse_environment_variables(&self, content: String) -> HashMap<String, EnvironmentVariableBlock> {
 
-        let env_var_regex = Regex::new("^export (?'name'\\w+)=(?'value'[a-z,A-Z,<>-_`¨^~'.,:;\\/]+)$").unwrap();
+        // TODO: Fix regex to be RUST compatible
+        let env_var_regex = Regex::new("^export (?P<name>\\w+)=(?P<value>[a-z,A-Z,<>-_`¨^~'./,:;]+)$").unwrap();
         let mut environment_variables = HashMap::new();
 
         let mut ev_block = EnvironmentVariableBlock::new();
@@ -75,7 +88,7 @@ impl ZSHHandler {
         let mut sb: String = "".to_owned();
 
         for (_, value) in variables {
-           
+
             sb.push_str(&value.to_string());
         }
 
