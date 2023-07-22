@@ -1,4 +1,4 @@
-use std::{fs, collections::HashMap, path::{PathBuf}};
+use std::{fs, collections::HashMap, path::PathBuf};
 use regex::Regex;
 use crate::{cmd::command_handlers::{RemoveCommand, AddCommand, ListCommand}, io};
 use super::{TerminalHandler, EnvironmentVariableBlock};
@@ -96,51 +96,40 @@ impl ZSHHandler {
         let path = self.get_file_path();
         fs::write(path, sb).expect("Could save state to file...");
     }
-}
 
-impl RemoveCommand for ZSHHandler {
-    fn remove_variable(&self, var_name: &str) -> () {
+    fn remove_variable(&self, var_name: &str, content: String) -> HashMap<String, EnvironmentVariableBlock> {
 
-        let content = self.read_file();
         let mut variables = self.parse_environment_variables(content);
         
         // Remove the environment variable
         variables.remove(var_name);
-        
-        self.save_environment_variables(variables);
-        return;
-    }
-}
 
-impl AddCommand for ZSHHandler {
-    fn add_variable(&self, var_name: &str, value: &str, overwrite: &bool) -> () {
-        
-        let content = self.read_file();
+        return variables;
+    }
+
+    fn add_variable(&self, var_name: &str, value: &str, overwrite: &bool, content: String) -> HashMap<String, EnvironmentVariableBlock> {
+
         let mut variables = self.parse_environment_variables(content);
 
         if ENV_SCRIPT_TAG == var_name {
-            return; // DO NOT EVEN... you bastard
+            return variables; // DO NOT EVEN... you bastard
         }
 
         // If we are not allowed to overwrite a variable and it exists then terminate
         if !overwrite && variables.contains_key(var_name) {
-            return;
+            return variables;
         }
 
         let mut ev_block = EnvironmentVariableBlock::new();
         ev_block.set_environment_variable(var_name, value);
 
         variables.insert(var_name.to_string(), ev_block);
-        self.save_environment_variables(variables);
 
-        return;
+        return variables;
     }
-}
 
-impl ListCommand for ZSHHandler {
-    fn list_variables(&self, filter: &str) -> Vec<String> {
+    fn list_variables(&self, filter: &str, content: String) -> Vec<String> {
 
-        let content = self.read_file();
         let variables = self.parse_environment_variables(content);
 
         let mut names = Vec::new();
@@ -151,8 +140,44 @@ impl ListCommand for ZSHHandler {
                 names.push(name);
             }
         }
+
+        return names
+    }
+}
+
+impl RemoveCommand for ZSHHandler {
+    fn remove_variable(&self, var_name: &str) -> () {
+
+        let content = self.read_file();
+
+        let variables = self.remove_variable(var_name, content);
         
-        return names;
+        self.save_environment_variables(variables);
+        return;
+    }
+}
+
+impl AddCommand for ZSHHandler {
+    fn add_variable(&self, var_name: &str, value: &str, overwrite: &bool) -> () {
+        
+        // Read the file 
+        let content = self.read_file();
+
+        // Perform the action
+        let variables = self.add_variable(var_name, value, overwrite, content);
+
+        // Save the changes
+        self.save_environment_variables(variables);
+        return;
+    }
+}
+
+impl ListCommand for ZSHHandler {
+    fn list_variables(&self, filter: &str) -> Vec<String> {
+
+        let content = self.read_file();
+        
+        return self.list_variables(filter, content);
     }
 
     fn list_terminals(&self) -> Vec<String> {
@@ -164,4 +189,72 @@ impl ListCommand for ZSHHandler {
 
 impl TerminalHandler for ZSHHandler {
 
+}
+
+#[cfg(test)]
+mod zsh_handler_tests {
+
+    #[test]
+    fn list_variables_empty_source_returns_empty_list() {
+
+        assert_eq!(1,2);
+    }
+
+    #[test]
+    fn list_variables_source_with_entries_returns_vector_of_variables() {
+
+        assert_eq!(1,2);
+    }
+
+    #[test]
+    fn add_variable_with_var_name_equal_script_tag_returns_map_unchanged() {
+
+        assert_eq!(1,2);
+    }
+
+    #[test]
+    fn add_variable_with_var_name_equal_script_tag_and_overwrite_to_true_returns_map_unchanged() {
+
+        assert_eq!(1,2);
+    }
+
+    #[test]
+    fn add_variable_with_new_var_name_returns_map_with_new_var() {
+
+        assert_eq!(1,2)
+    }
+
+    #[test]
+    fn add_variable_with_new_var_name_and_overwrite_true_returns_map_with_new_var() {
+
+        assert_eq!(1,2)
+    }
+
+    #[test]
+    fn add_variable_with_existing_var_name_returns_map_unchanged() {
+
+        assert_eq!(1,2)
+    }
+
+    #[test]
+    fn add_variable_with_existing_var_name_and_overwrite_true_returns_map_with_var_with_changed_value() {
+
+        assert_eq!(1,2)
+    }
+    
+    #[test]
+    fn remove_variable_with_existing_var_name_returns_map_without_that_var_name() {
+
+        assert_eq!(1,2)
+    }
+
+    #[test]
+    fn remove_variable_that_is_not_present_in_source_returns_map_unchanged() {
+
+    }
+
+    #[test]
+    fn remove_variable_with_var_name_as_script_tag_returns_map_unchanged() {
+
+    }
 }
