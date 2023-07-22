@@ -61,5 +61,4 @@ mod environment_variable_block_tests {
         let result = ev_block.to_string();
         assert_eq!(result, "#This is a comment\n#This is another comment that we also need to take care of\nexport key=value\n")
     }
-
 }

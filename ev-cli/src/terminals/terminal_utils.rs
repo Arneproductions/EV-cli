@@ -26,7 +26,6 @@ fn search_terminals(path: &Path) -> HashSet<String> {
                 terminals.insert(name.to_owned());
             }
         }
-        
     }
 
     return terminals;
