@@ -65,8 +65,8 @@ impl ZSHHandler {
 
                let captures = env_var_regex.captures(line).unwrap();
                
-               let name = captures.name("Name").expect("Environment variable is missing a name");
-               let value = captures.name("Value").expect("Environment variable is missing a value");
+               let name = captures.name("name").expect("Environment variable is missing a name");
+               let value = captures.name("value").expect("Environment variable is missing a value");
                ev_block.set_environment_variable(name.as_str(), value.as_str());
 
                environment_variables.insert(name.as_str().to_owned(), ev_block);
@@ -193,17 +193,31 @@ impl TerminalHandler for ZSHHandler {
 
 #[cfg(test)]
 mod zsh_handler_tests {
+    use crate::terminals::ZSHHandler;
+
 
     #[test]
     fn list_variables_empty_source_returns_empty_list() {
 
-        assert_eq!(1,2);
+        let content = "";
+        let expected: Vec<String> = Vec::new();
+
+        let handler = ZSHHandler::new(false);
+        let result = handler.list_variables("", content.to_string());
+
+        assert_eq!(result, expected);
     }
 
     #[test]
     fn list_variables_source_with_entries_returns_vector_of_variables() {
 
-        assert_eq!(1,2);
+        let content = "export var1=wassup\nexport var2=wassup".to_string();
+
+        let handler = ZSHHandler::new(false);
+        let result = handler.list_variables("", content.to_string());
+
+        assert_eq!(result[0], "var1");
+        assert_eq!(result[1], "var2")
     }
 
     #[test]
@@ -251,10 +265,12 @@ mod zsh_handler_tests {
     #[test]
     fn remove_variable_that_is_not_present_in_source_returns_map_unchanged() {
 
+        assert_eq!(1,2)
     }
 
     #[test]
     fn remove_variable_with_var_name_as_script_tag_returns_map_unchanged() {
 
+        assert_eq!(1,2)
     }
 }
